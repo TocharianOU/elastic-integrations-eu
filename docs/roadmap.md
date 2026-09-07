@@ -31,7 +31,7 @@ overlaps most of what a **BunkerWeb** (FR) package would add.
 | Product | Country | Category | Upstream | Test deployment | Effort |
 |---|---|---|---|---|---|
 | **CrowdSec** | FR | Intrusion prevention | none | Docker | Low |
-| **OPNsense** | NL | Firewall / UTM | only `pfsense` | VM, free | Low |
+| **OPNsense** | NL | Firewall / UTM | only `pfsense` | VM, free | done |
 | **Greenbone / OpenVAS** | DE | Vulnerability management | none | Docker, free CE | Medium |
 | Proxmox VE | AT | Virtualization | only `vsphere` | Bare metal / nested | Med-High |
 | Nextcloud | DE | Collaboration / audit | none | Docker | Medium |
@@ -69,9 +69,13 @@ Ingestion paths found on the live product:
 
 ### OPNsense (Netherlands)
 
-`pfsense` exists upstream and OPNsense does not. The `filterlog` syslog format is
-close enough to pfSense's that the existing package is a usable reference. Free,
-installs in a VM, and firewall traffic is easy to generate.
+Done — see [`packages/opnsense`](../packages/opnsense).
+
+The filterlog body is CSV whose column layout changes with the IP version and
+then with the protocol: IPv6 reverses the two protocol columns relative to IPv4,
+TCP carries a long tail of flags and sequence numbers, UDP stops after the ports,
+and ICMP switches to `key=value`. The pipeline parses this positionally in one
+script rather than as a stack of grok alternatives.
 
 ### Greenbone / OpenVAS (Germany)
 

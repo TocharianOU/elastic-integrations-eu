@@ -14,8 +14,8 @@ Maintained by [**TocharianOU**](https://tocharian.eu). Apache-2.0.
 
 Elastic ships around 600 integrations, and few of them cover European products.
 Vulnerability management upstream is Tenable, Qualys and Rapid7, with no package
-for Greenbone. pfSense has a package and OPNsense does not. CrowdSec, Proxmox VE,
-Nextcloud, Checkmk, Zabbix and the European clouds have none.
+for Greenbone. Proxmox VE, Nextcloud, Checkmk, Zabbix and the European clouds
+have none either.
 
 These packages cover part of that.
 
@@ -32,6 +32,7 @@ came from, and the same captures serve as the pipeline test fixtures.
 | Package | Vendor | Country | Category | Version | Verified against |
 |---|---|---|---|---|---|
 | [`crowdsec`](packages/crowdsec) | CrowdSec | FR | Intrusion prevention | 0.1.0 | CrowdSec 1.8.1 |
+| [`opnsense`](packages/opnsense) | OPNsense | NL | Firewall | 0.1.0 | OPNsense 26.7 |
 
 Other candidates are listed in [`docs/roadmap.md`](docs/roadmap.md).
 
