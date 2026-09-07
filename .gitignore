@@ -1,2 +1,4 @@
-build/
+# Only the build output at the repository root, not packages/*/_dev/build,
+# which is package source and must be committed.
+/build/
 .DS_Store
