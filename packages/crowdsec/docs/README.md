@@ -51,14 +51,6 @@ time by scenario and decision, a source map, and top talkers, scenarios and targ
 paths, with a drill-down table of recent alerts. The top controls filter by
 scenario, decision type and source country.
 
-## Support
-
-This integration is maintained by [TocharianOU](https://tocharian.eu) as part of
-[elastic-integrations-eu](https://github.com/TocharianOU/elastic-integrations-eu).
-
-Open an issue on that repository for bugs and questions. For anything else:
-[tocharian.eu](https://tocharian.eu) or info@tocharian.eu.
-
 ## Alerts
 
 ### Alert
