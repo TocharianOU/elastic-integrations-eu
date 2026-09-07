@@ -15,8 +15,17 @@ conditions:
 icons:
   - src: /img/opnsense-logo.svg
     title: OPNsense
-    size: 512x512
+    size: 200x200
     type: image/svg+xml
+screenshots:
+  - src: /img/dashboard-overview.png
+    title: Firewall activity overview
+    size: 1600x670
+    type: image/png
+  - src: /img/dashboard-traffic.png
+    title: Blocked and passed traffic over time
+    size: 1600x670
+    type: image/png
 policy_templates:
   - name: opnsense
     title: OPNsense logs

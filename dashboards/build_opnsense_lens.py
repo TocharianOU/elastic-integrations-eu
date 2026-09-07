@@ -7,8 +7,8 @@ not reuse the alert-overview layout:
     horizontal band and a service scan as a vertical one
   - TCP flag distribution, which separates an ordinary SYN connection attempt
     from FIN, NULL and Xmas scans
-  - interface x action and protocol x direction as mosaics, standing in for a
-    flow diagram, which Lens has no mark for
+  - interface x action and protocol x direction as nested donuts, standing in
+    for a flow diagram, which Lens has no mark for
   - rule hit ranking, since "which rule is dropping this" is the question a
     firewall operator actually asks
   - blocked and passed traffic side by side rather than blocked alone
@@ -219,19 +219,24 @@ def heatmap_panel(title, y_field, y_label, y_size=15, kql=None):
 
 # ---------------------------------------------------------------- partition
 def partition_panel(title, field, label, shape="donut", size=8, second=None, second_label=None):
-    """`mosaic` with two groups reads as a flow: the width of each column is the
-    share of the first term, split vertically by the second."""
+    """A donut, and with a second field a nested donut.
+
+    Both dimensions still read at a glance as concentric rings. A mosaic or
+    waffle renders the same data as a grid of near-identical squares, which is
+    unreadable once two categories share a colour ramp.
+    """
     lid, b, m = rid(), rid(), rid()
     cols = {b: c_terms(field, label, m, size), m: c_count("Events")}
     order = [b, m]
-    layer = {"layerId": lid, "layerType": "data", "primaryGroups": [b], "metrics": [m],
-             "numberDisplay": "percent", "categoryDisplay": "default",
-             "legendDisplay": "show", "nestedLegend": False, "truncateLegend": True}
+    groups = [b]
     if second:
         b2 = rid()
         cols[b2] = c_terms(second, second_label, m, 4)
         order = [b, b2, m]
-        layer["secondaryGroups"] = [b2]
+        groups = [b, b2]
+    layer = {"layerId": lid, "layerType": "data", "primaryGroups": groups, "metrics": [m],
+             "numberDisplay": "percent", "categoryDisplay": "default",
+             "legendDisplay": "show", "nestedLegend": bool(second), "truncateLegend": True}
     vis = {"shape": shape, "palette": PALETTE, "layers": [layer]}
     return lens("lnsPie", title, {lid: (cols, order)}, vis)
 
@@ -335,14 +340,14 @@ def build():
         # row 3 — the scan-detection row
         ("lens", heatmap_panel("Targeted ports over time (blocked)", "destination.port", "Port",
                                y_size=15, kql="event.action : block"), 0, 19, 32, 16),
-        ("lens", partition_panel("TCP flags", "opnsense.log.tcp.flags", "Flags", shape="waffle", size=8),
+        ("lens", partition_panel("TCP flags", "opnsense.log.tcp.flags", "Flags", shape="donut", size=8),
          32, 19, 16, 16),
         # row 4 — flow-shaped views
         ("lens", partition_panel("Interface by action", "opnsense.log.interface", "Interface",
-                                 shape="mosaic", size=6, second="event.action", second_label="Action"),
+                                 shape="donut", size=6, second="event.action", second_label="Action"),
          0, 35, 24, 15),
         ("lens", partition_panel("Protocol by direction", "network.transport", "Protocol",
-                                 shape="mosaic", size=6, second="network.direction", second_label="Direction"),
+                                 shape="donut", size=6, second="network.direction", second_label="Direction"),
          24, 35, 24, 15),
         # row 5 — what a firewall operator actually asks
         ("lens", table_panel("Rules firing most", "rule.id", "Rule",
