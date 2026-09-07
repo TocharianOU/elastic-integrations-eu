@@ -10,6 +10,8 @@ into that repository unchanged. It carries only what Elastic does not ship.
 
 Maintained by [**TocharianOU**](https://tocharian.eu). Apache-2.0.
 
+[![CI](https://github.com/TocharianOU/elastic-integrations-eu/actions/workflows/ci.yml/badge.svg)](https://github.com/TocharianOU/elastic-integrations-eu/actions/workflows/ci.yml)
+
 ## Why this exists
 
 Elastic ships around 600 integrations, and few of them cover European products.
@@ -69,6 +71,11 @@ Then point Kibana at it:
 xpack.fleet.registryUrl: "https://your-registry.example.eu"
 ```
 
+Built packages are attached to
+[releases](https://github.com/TocharianOU/elastic-integrations-eu/releases), each
+with its SHA-256, so the artifact your registry serves can be checked against the
+one published here.
+
 To install a single package directly instead:
 
 ```bash
@@ -90,6 +97,16 @@ elastic-package test pipeline    # runs the pipeline against the captured fixtur
 elastic-package check            # lint + build; must pass before any contribution
 elastic-package build            # produces build/packages/<name>-<version>.zip
 ```
+
+## Releases and CI
+
+Every push and pull request runs `elastic-package check` on each package, and the
+pipeline tests against a real Elasticsearch, so a package that does not lint,
+build or parse its own captured fixtures never reaches `main`.
+
+A release is cut by tagging `<package>-v<version>`, for example `crowdsec-v0.1.0`.
+The workflow refuses to publish if the tag's version does not match the package
+manifest, so a release can never point at a differently versioned artifact.
 
 ## Layout
 

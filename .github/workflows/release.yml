@@ -1,0 +1,85 @@
+name: Release
+
+# Tag a package release as <package>-v<version>, for example crowdsec-v0.1.0.
+# The workflow refuses to publish if that version does not match the package
+# manifest, so a tag can never point at a differently versioned artifact.
+on:
+  push:
+    tags:
+      - "*-v*"
+
+permissions:
+  contents: write
+
+env:
+  ELASTIC_PACKAGE_VERSION: "0.126.3"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse the tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          package="${tag%-v*}"
+          version="${tag##*-v}"
+          if [ ! -d "packages/$package" ]; then
+            echo "::error::no package named '$package' (from tag '$tag')"
+            exit 1
+          fi
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the tag matches the manifest
+        run: |
+          manifest_version=$(grep -E '^version:' "packages/${{ steps.tag.outputs.package }}/manifest.yml" \
+            | head -1 | sed -E 's/^version:[[:space:]]*"?([^"]+)"?/\1/')
+          if [ "$manifest_version" != "${{ steps.tag.outputs.version }}" ]; then
+            echo "::error::tag says ${{ steps.tag.outputs.version }} but the manifest says $manifest_version"
+            exit 1
+          fi
+
+      - name: Install elastic-package
+        run: |
+          curl -sL -o ep.tar.gz \
+            "https://github.com/elastic/elastic-package/releases/download/v${ELASTIC_PACKAGE_VERSION}/elastic-package_${ELASTIC_PACKAGE_VERSION}_linux_amd64.tar.gz"
+          tar xzf ep.tar.gz elastic-package
+          sudo install -m 0755 elastic-package /usr/local/bin/elastic-package
+
+      - name: Build
+        working-directory: packages/${{ steps.tag.outputs.package }}
+        run: elastic-package check
+
+      - name: Checksum
+        id: sum
+        run: |
+          zip="build/packages/${{ steps.tag.outputs.package }}-${{ steps.tag.outputs.version }}.zip"
+          sha=$(sha256sum "$zip" | cut -d' ' -f1)
+          sha256sum "$zip" > "$zip.sha256"
+          echo "zip=$zip" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.tag.outputs.package }} ${{ steps.tag.outputs.version }}
+          files: |
+            ${{ steps.sum.outputs.zip }}
+            ${{ steps.sum.outputs.zip }}.sha256
+          body: |
+            Elastic integration package `${{ steps.tag.outputs.package }}` version ${{ steps.tag.outputs.version }}.
+
+            SHA-256: `${{ steps.sum.outputs.sha }}`
+
+            Built with `elastic-package ${{ env.ELASTIC_PACKAGE_VERSION }}`; `elastic-package check` passed.
+
+            To install, publish the zip to a package registry Kibana is pointed at, or:
+
+            ```
+            curl -u "$USER:$PASS" -X POST \
+              "$KIBANA/api/fleet/epm/packages/${{ steps.tag.outputs.package }}/${{ steps.tag.outputs.version }}" \
+              -H "kbn-xsrf: true" -H "Content-Type: application/json" -d '{"force":true}'
+            ```

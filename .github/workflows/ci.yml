@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ELASTIC_PACKAGE_VERSION: "0.126.3"
+
+jobs:
+  discover:
+    name: Discover packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.list.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: |
+          packages=$(ls -1 packages | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          echo "Found: $packages"
+
+  check:
+    name: check ${{ matrix.package }}
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.discover.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+        # elastic-package resolves the repository root from git, so the checkout
+        # has to keep the .git directory.
+
+      - name: Install elastic-package
+        run: |
+          curl -sL -o ep.tar.gz \
+            "https://github.com/elastic/elastic-package/releases/download/v${ELASTIC_PACKAGE_VERSION}/elastic-package_${ELASTIC_PACKAGE_VERSION}_linux_amd64.tar.gz"
+          tar xzf ep.tar.gz elastic-package
+          sudo install -m 0755 elastic-package /usr/local/bin/elastic-package
+          elastic-package version
+
+      - name: Lint and build
+        working-directory: packages/${{ matrix.package }}
+        run: elastic-package check
+
+  pipeline-tests:
+    name: pipeline tests ${{ matrix.package }}
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.discover.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elastic-package
+        run: |
+          curl -sL -o ep.tar.gz \
+            "https://github.com/elastic/elastic-package/releases/download/v${ELASTIC_PACKAGE_VERSION}/elastic-package_${ELASTIC_PACKAGE_VERSION}_linux_amd64.tar.gz"
+          tar xzf ep.tar.gz elastic-package
+          sudo install -m 0755 elastic-package /usr/local/bin/elastic-package
+
+      - name: Start Elasticsearch
+        # Pipeline tests run the ingest pipeline against the captured fixtures,
+        # so Elasticsearch is enough; Kibana is not needed.
+        run: elastic-package stack up -d --services elasticsearch
+
+      - name: Run pipeline tests
+        working-directory: packages/${{ matrix.package }}
+        run: |
+          eval "$(elastic-package stack shellinit)"
+          elastic-package test pipeline
+
+      - name: Stack logs on failure
+        if: failure()
+        run: elastic-package stack dump -v --output stack-dump || true
+
+      - name: Tear down
+        if: always()
+        run: elastic-package stack down || true
