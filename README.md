@@ -152,15 +152,9 @@ a fix possible.
 
 For anything else: [tocharian.eu](https://tocharian.eu) · info@tocharian.eu
 
-## Icons
-
-Icons under `packages/*/img/` are neutral placeholders, **not** vendor
-trademarks. Replace them with properly licensed artwork before using these
-packages in anything customer-facing.
-
 ## Licence
 
 Apache License 2.0. See [LICENSE](LICENSE).
 
-Product names are trademarks of their respective owners; they are used here only
-to identify the product each package collects data from.
+Product names and logos are trademarks of their respective owners. They are used
+here only to identify the product each package collects data from.

@@ -15,8 +15,21 @@ conditions:
 icons:
   - src: /img/crowdsec-logo.svg
     title: CrowdSec
-    size: 32x32
+    size: 512x512
     type: image/svg+xml
+screenshots:
+  - src: /img/dashboard-overview.png
+    title: Alerts overview
+    size: 1600x664
+    type: image/png
+  - src: /img/dashboard-sources.png
+    title: Alert sources and scenario breakdown
+    size: 1600x674
+    type: image/png
+  - src: /img/dashboard-detail.png
+    title: Scenario by country and repeat offenders
+    size: 1600x664
+    type: image/png
 policy_templates:
   - name: crowdsec
     title: CrowdSec alerts
