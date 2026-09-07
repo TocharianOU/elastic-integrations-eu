@@ -43,10 +43,11 @@ def main():
         src = random.choice(SOURCES)
         body = body.replace("10.99.0.1,", src + ",").replace("10.99.0.10,", FIREWALL_WAN + ",")
         body = body.replace("192.168.1.2,", src + ",").replace("192.168.1.1,", FIREWALL_WAN + ",")
-        # vary the destination port so the heatmap has a real spread
+        # vary the destination port so the heatmap has a real spread.
+        # 0-indexed: [19] is the destination IP, [21] is the destination port.
         parts = body.split(",")
         if len(parts) > 19 and parts[16] in ("tcp", "udp"):
-            parts[19] = str(random.choice(
+            parts[21] = str(random.choice(
                 [22, 23, 80, 443, 445, 1433, 3306, 3389, 5432, 6379, 8080, 8443, 9200, 27017, 5900]))
             body = ",".join(parts)
         seq += 1
