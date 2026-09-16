@@ -132,11 +132,11 @@ change reviewable as a diff.
 
 | Field | Value |
 |---|---|
-| `format_version` | `3.3.2` |
+| `format_version` | `3.4.2` |
 | `owner.github` | `TocharianOU` |
 | `owner.type` | `community` |
 | `source.license` | `Apache-2.0` |
-| `conditions.kibana.version` | `^8.18.0 \|\| ^9.0.0` |
+| `conditions.kibana.version` | `^8.19.0 \|\| ^9.1.0` |
 | `conditions.elastic.subscription` | `basic` |
 | UI language | English |
 

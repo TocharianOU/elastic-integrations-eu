@@ -2,3 +2,6 @@
 # which is package source and must be committed.
 /build/
 .DS_Store
+
+# review-integration output, not part of any package
+/tmp/

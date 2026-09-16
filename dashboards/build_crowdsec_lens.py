@@ -38,7 +38,7 @@ KPI_TINT = {"blue": "#BCD6F0", "green": "#B4E0CF", "red": "#F7C3B1", "purple": "
 
 L = {
   "en": {
-    "dash_title": "[Logs CrowdSec] Alerts Overview",
+    "dash_title": "[Logs CrowdSec] Alerts overview",
     "dash_desc": "Alerts and remediation decisions from CrowdSec, collected by the crowdsec integration.",
     "search_title": "[Logs CrowdSec] Recent alerts",
     "c_scenario": "Scenario", "c_author": "Rule author", "c_decision": "Decision", "c_country": "Country",
@@ -352,7 +352,7 @@ def search_object(sid, title):
             "attributes": {"title": title, "description": "", "columns": SEARCH_COLUMNS,
                            "sort": [["@timestamp", "desc"]], "grid": {}, "hideChart": True,
                            "isTextBasedQuery": False, "usesAdHocDataView": False, "timeRestore": False,
-                           "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps(ss)}},
+                           "kibanaSavedObjectMeta": {"searchSourceJSON": ss}},
             "references": [{"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.index", "type": "index-pattern"},
                            {"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
                             "type": "index-pattern"}]}
@@ -361,8 +361,8 @@ def search_object(sid, title):
 # ---------------------------------------------------------------- dashboard
 def build(lang):
     R = L[lang]
-    dash_id = "crowdsec-alerts-overview"
-    search_id = "crowdsec-recent-alerts"
+    dash_id = "crowdsec-98d927dd-55f0-40cd-a2fa-42b51c295f50"
+    search_id = "crowdsec-457fe00f-6256-4298-9a6f-7a8ec4e0beae"
 
     layout = [
         # row 1: KPIs with sparklines
@@ -409,8 +409,7 @@ def build(lang):
             for r in att["references"]:
                 refs.append({"id": r["id"], "name": f"{pidx}:{r['name']}", "type": r["type"]})
             panels.append({"type": "lens", "gridData": grid, "panelIndex": pidx, "title": att["title"],
-                           "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False},
-                           "version": "8.10.1"})
+                           "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False}})
         elif ptype == "map":
             refs.append({"id": DV, "name": f"{pidx}:layer_1_source_index_pattern", "type": "index-pattern"})
             # The map panel is walked by the same by-value Lens migration, so it needs a
@@ -422,12 +421,11 @@ def build(lang):
                            "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False,
                                                 "mapCenter": {"lat": 30, "lon": 10, "zoom": 1.6},
                                                 "isLayerTOCOpen": False, "openTOCDetails": [],
-                                                "hiddenLayers": []},
-                           "version": "8.10.1"})
+                                                "hiddenLayers": []}})
         elif ptype == "search":
             refs.append({"id": search_id, "name": f"{pidx}:panel_{pidx}", "type": "search"})
             panels.append({"type": "search", "gridData": grid, "panelIndex": pidx, "panelRefName": f"panel_{pidx}",
-                           "title": R["search_title"], "embeddableConfig": {"enhancements": {}}, "version": "8.10.1"})
+                           "title": R["search_title"], "embeddableConfig": {"enhancements": {}}})
 
     # control group
     controls = [("crowdsec.scenario.title", R["c_scenario"]), ("crowdsec.scenario.author", R["c_author"]),
@@ -440,9 +438,9 @@ def build(lang):
                                           "width": "medium", "enhancements": {}}}
         refs.append({"id": DV, "name": f"controlGroup_{cid}:optionsListDataView", "type": "index-pattern"})
     control_group = {"chainingSystem": "HIERARCHICAL", "controlStyle": "oneLine",
-                     "ignoreParentSettingsJSON": json.dumps({"ignoreFilters": False, "ignoreQuery": False,
-                                                             "ignoreTimerange": False, "ignoreValidations": False}),
-                     "panelsJSON": json.dumps(cpanels)}
+                     "ignoreParentSettingsJSON": {"ignoreFilters": False, "ignoreQuery": False,
+                                                  "ignoreTimerange": False, "ignoreValidations": False},
+                     "panelsJSON": cpanels}
 
     # dashboard-level dataset filter (SVR00002)
     refs.append({"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index", "type": "index-pattern"})
@@ -459,14 +457,14 @@ def build(lang):
     dash = {"id": dash_id, "type": "dashboard", "coreMigrationVersion": "8.8.0",
             "typeMigrationVersion": "8.9.0",
             "attributes": {"title": R["dash_title"], "description": R["dash_desc"],
-                           "panelsJSON": json.dumps(panels, ensure_ascii=False),
+                           "panelsJSON": panels,
                            # syncColors keeps a scenario the same colour in every panel
-                           "optionsJSON": json.dumps({"useMargins": True, "hidePanelTitles": False,
-                                                      "syncColors": True, "syncCursor": True,
-                                                      "syncTooltips": False}),
+                           "optionsJSON": {"useMargins": True, "hidePanelTitles": False,
+                                           "syncColors": True, "syncCursor": True,
+                                           "syncTooltips": False},
                            "controlGroupInput": control_group,
                            "timeRestore": True, "timeFrom": "now-24h", "timeTo": "now",
-                           "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps(ss)}},
+                           "kibanaSavedObjectMeta": {"searchSourceJSON": ss}},
             "references": refs}
     return dash, search_object(search_id, R["search_title"])
 
@@ -477,5 +475,5 @@ if __name__ == "__main__":
         dash, search = build(lang)
         open(f"{out}/dash_{lang}.json", "w").write(json.dumps(dash, ensure_ascii=False, indent=2) + "\n")
         open(f"{out}/search_{lang}.json", "w").write(json.dumps(search, ensure_ascii=False, indent=2) + "\n")
-        n = len(json.loads(dash["attributes"]["panelsJSON"]))
+        n = len(dash["attributes"]["panelsJSON"])
         print(f"{lang}: dashboard {dash['id']} panels={n} refs={len(dash['references'])}; search {search['id']}")

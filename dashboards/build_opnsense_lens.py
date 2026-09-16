@@ -27,7 +27,7 @@ KPI_TINT = {"blue": "#BCD6F0", "red": "#F7C3B1", "purple": "#CFBEE9", "teal": "#
 C_BLOCK, C_PASS = "#E7664C", "#54B399"
 
 L = {
-    "dash_title": "[Logs OPNsense] Firewall Activity",
+    "dash_title": "[Logs OPNsense] Firewall activity",
     "dash_desc": "Packet filter decisions from OPNsense, collected by the opnsense integration.",
     "search_title": "[Logs OPNsense] Recent firewall events",
 }
@@ -318,7 +318,7 @@ def search_object(sid, title):
             "attributes": {"title": title, "description": "", "columns": SEARCH_COLUMNS,
                            "sort": [["@timestamp", "desc"]], "grid": {}, "hideChart": True,
                            "isTextBasedQuery": False, "usesAdHocDataView": False, "timeRestore": False,
-                           "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps(ss)}},
+                           "kibanaSavedObjectMeta": {"searchSourceJSON": ss}},
             "references": [{"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.index", "type": "index-pattern"},
                            {"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
                             "type": "index-pattern"}]}
@@ -326,7 +326,7 @@ def search_object(sid, title):
 
 # ---------------------------------------------------------------- dashboard
 def build():
-    dash_id, search_id = "opnsense-firewall-activity", "opnsense-recent-events"
+    dash_id, search_id = "opnsense-172a02ee-fb9f-4f67-bc8c-f1f58fc82d86", "opnsense-3673477c-a2c5-4fb8-8132-414a4592e120"
 
     layout = [
         # row 1 — KPIs
@@ -376,8 +376,7 @@ def build():
             for r in att["references"]:
                 refs.append({"id": r["id"], "name": f"{pidx}:{r['name']}", "type": r["type"]})
             panels.append({"type": "lens", "gridData": grid, "panelIndex": pidx, "title": att["title"],
-                           "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False},
-                           "version": "8.10.1"})
+                           "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False}})
         elif ptype == "map":
             refs.append({"id": DV, "name": f"{pidx}:layer_1_source_index_pattern", "type": "index-pattern"})
             # The map is walked by the same by-value Lens migration, so it needs a
@@ -389,13 +388,12 @@ def build():
                            "embeddableConfig": {"attributes": att, "enhancements": {}, "hidePanelTitles": False,
                                                 "mapCenter": {"lat": 30, "lon": 10, "zoom": 1.6},
                                                 "isLayerTOCOpen": False, "openTOCDetails": [],
-                                                "hiddenLayers": []},
-                           "version": "8.10.1"})
+                                                "hiddenLayers": []}})
         else:
             refs.append({"id": search_id, "name": f"{pidx}:panel_{pidx}", "type": "search"})
             panels.append({"type": "search", "gridData": grid, "panelIndex": pidx,
                            "panelRefName": f"panel_{pidx}", "title": L["search_title"],
-                           "embeddableConfig": {"enhancements": {}}, "version": "8.10.1"})
+                           "embeddableConfig": {"enhancements": {}}})
 
     controls = [("event.action", "Action"), ("opnsense.log.interface", "Interface"),
                 ("network.transport", "Protocol"), ("network.direction", "Direction")]
@@ -407,9 +405,9 @@ def build():
                                           "width": "medium", "enhancements": {}}}
         refs.append({"id": DV, "name": f"controlGroup_{cid}:optionsListDataView", "type": "index-pattern"})
     control_group = {"chainingSystem": "HIERARCHICAL", "controlStyle": "oneLine",
-                     "ignoreParentSettingsJSON": json.dumps({"ignoreFilters": False, "ignoreQuery": False,
-                                                             "ignoreTimerange": False, "ignoreValidations": False}),
-                     "panelsJSON": json.dumps(cpanels)}
+                     "ignoreParentSettingsJSON": {"ignoreFilters": False, "ignoreQuery": False,
+                                                  "ignoreTimerange": False, "ignoreValidations": False},
+                     "panelsJSON": cpanels}
 
     refs.append({"id": DV, "name": "kibanaSavedObjectMeta.searchSourceJSON.filter[0].meta.index",
                  "type": "index-pattern"})
@@ -425,13 +423,13 @@ def build():
     dash = {"id": dash_id, "type": "dashboard", "coreMigrationVersion": "8.8.0",
             "typeMigrationVersion": "8.9.0",
             "attributes": {"title": L["dash_title"], "description": L["dash_desc"],
-                           "panelsJSON": json.dumps(panels, ensure_ascii=False),
-                           "optionsJSON": json.dumps({"useMargins": True, "hidePanelTitles": False,
-                                                      "syncColors": True, "syncCursor": True,
-                                                      "syncTooltips": False}),
+                           "panelsJSON": panels,
+                           "optionsJSON": {"useMargins": True, "hidePanelTitles": False,
+                                           "syncColors": True, "syncCursor": True,
+                                           "syncTooltips": False},
                            "controlGroupInput": control_group,
                            "timeRestore": True, "timeFrom": "now-24h", "timeTo": "now",
-                           "kibanaSavedObjectMeta": {"searchSourceJSON": json.dumps(ss)}},
+                           "kibanaSavedObjectMeta": {"searchSourceJSON": ss}},
             "references": refs}
     return dash, search_object(search_id, L["search_title"])
 
@@ -441,5 +439,5 @@ if __name__ == "__main__":
     dash, search = build()
     open(f"{out}/dash.json", "w").write(json.dumps(dash, ensure_ascii=False, indent=2) + "\n")
     open(f"{out}/search.json", "w").write(json.dumps(search, ensure_ascii=False, indent=2) + "\n")
-    n = len(json.loads(dash["attributes"]["panelsJSON"]))
+    n = len(dash["attributes"]["panelsJSON"])
     print(f"dashboard {dash['id']} panels={n} refs={len(dash['references'])}; search {search['id']}")
