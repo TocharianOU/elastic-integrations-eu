@@ -164,6 +164,15 @@ Copy `packages/<name>/` into a fork of `elastic/integrations`, add the package t
 On a pull request from an external contributor, Buildkite and the GitHub Actions
 checks start only once an Elastic maintainer triggers them.
 
+## Support
+
+Open an [issue](https://github.com/TocharianOU/elastic-integrations-eu/issues) for
+bugs and questions. Include the product version and, where you can, a captured
+payload — every package here was built from real captures, and that is what makes
+a fix possible.
+
+For anything else: [tocharian.eu](https://tocharian.eu) · info@tocharian.eu
+
 ## Licence
 
 Apache License 2.0. See [LICENSE](LICENSE).
