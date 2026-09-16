@@ -88,7 +88,7 @@ ECS `vulnerability.*`.
 | Field | Value |
 |---|---|
 | `format_version` | `3.4.2` |
-| `owner.github` | `TocharianOU` |
+| `owner.github` | `elastic/security-service-integrations` |
 | `owner.type` | `community` |
 | `source.license` | `Apache-2.0` |
 | `conditions.kibana.version` | `^8.19.0 \|\| ^9.1.0` |

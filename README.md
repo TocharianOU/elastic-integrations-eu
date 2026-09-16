@@ -133,42 +133,36 @@ change reviewable as a diff.
 | Field | Value |
 |---|---|
 | `format_version` | `3.4.2` |
-| `owner.github` | `TocharianOU` |
+| `owner.github` | `elastic/security-service-integrations` |
 | `owner.type` | `community` |
 | `source.license` | `Apache-2.0` |
 | `conditions.kibana.version` | `^8.19.0 \|\| ^9.1.0` |
 | `conditions.elastic.subscription` | `basic` |
 | UI language | English |
 
-`owner.type` is `community`, which is the accurate value: these packages are
-built and maintained by non-Elastic contributors. It becomes `partner` only if
-and when the product vendor co-maintains one.
+`owner.github` must name a team that `.github/CODEOWNERS` lists for the package
+in `elastic/integrations`; the repository's codeowners check fails the build
+otherwise. `owner.type` is `community`: these packages are built and maintained by
+non-Elastic contributors, and upstream packages such as `pps` and `bbot` pair
+`community` with an Elastic team the same way.
 
-Every package carries its own `LICENSE.txt` declaring Apache-2.0. In
-`elastic/integrations`, whose root licence is the Elastic License 2.0, a
-`LICENSE.txt` in a directory subtree declares a different licence for that
-subtree — the mechanism 92 upstream packages already use.
+Every package carries its own `LICENSE.txt` declaring Apache-2.0, which
+`source.license` permits alongside `Elastic-2.0`. Of the 93 upstream packages that
+carry their own `LICENSE.txt`, 87 are Elastic License 2.0 and none are Apache-2.0.
 
 ## Contributing upstream
 
-A package here is ready to be proposed to `elastic/integrations`: copy
-`packages/<name>/` in, and `elastic-package check` must pass before the pull
-request. Note that upstream every package is code-owned by an Elastic team in
-`.github/CODEOWNERS`, including packages whose `owner.type` is `community` — so
-an Elastic team has to agree to take on the review and maintenance. That
-agreement, not the code, is the real gate.
+Copy `packages/<name>/` into a fork of `elastic/integrations`, add the package to
+`.github/CODEOWNERS`, and open a pull request. Before opening it:
 
-Until then these packages are distributed from here and from the registry above,
-which nobody's approval is required for.
+- run `/review-integration` from
+  [`elastic/integration-skills`](https://github.com/elastic/integration-skills) —
+  the same rules drive the automated reviewer on the pull request;
+- run `elastic-package format`, `check`, `test pipeline` and `test script`.
+  `check` does not catch formatting.
 
-## Support
-
-Open an [issue](https://github.com/TocharianOU/elastic-integrations-eu/issues) for
-bugs and questions. Include the product version and, where you can, a captured
-payload — every package here was built from real captures, and that is what makes
-a fix possible.
-
-For anything else: [tocharian.eu](https://tocharian.eu) · info@tocharian.eu
+On a pull request from an external contributor, Buildkite and the GitHub Actions
+checks start only once an Elastic maintainer triggers them.
 
 ## Licence
 
