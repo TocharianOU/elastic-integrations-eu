@@ -29,7 +29,7 @@ C_BLOCK, C_PASS = "#E7664C", "#54B399"
 L = {
     "dash_title": "[Logs OPNsense] Firewall activity",
     "dash_desc": "Packet filter decisions from OPNsense, collected by the opnsense integration.",
-    "search_title": "[Logs OPNsense] Recent firewall events",
+    "search_title": "Recent firewall events",
 }
 
 

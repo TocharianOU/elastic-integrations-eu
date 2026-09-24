@@ -40,7 +40,7 @@ L = {
   "en": {
     "dash_title": "[Logs CrowdSec] Alerts overview",
     "dash_desc": "Alerts and remediation decisions from CrowdSec, collected by the crowdsec integration.",
-    "search_title": "[Logs CrowdSec] Recent alerts",
+    "search_title": "Recent alerts",
     "c_scenario": "Scenario", "c_author": "Rule author", "c_decision": "Decision", "c_country": "Country",
     "k_total": "Alerts", "k_total_l": "alerts",
     "k_rate": "Ban rate", "k_rate_l": "banned",
